@@ -1,0 +1,20 @@
+version: '3.1'
+services:
+  piping:
+    image: nwtgck/piping-server:v0.9.2
+    restart: always
+    expose:
+      - "80"
+    command: --http-port=80
+
+  reverse_proxy:
+    build: http2-reverse-proxy
+    depends_on:
+      - piping
+    restart: always
+    ports:
+      - "8080:80"
+      - "8443:443"
+    command: -f 0.0.0.0,80;no-tls -f 0.0.0.0,443 -b piping,80 /ssl_certs/server.key /ssl_certs/server.crt
+    volumes:
+      - ./docker_volumes/ssl_certs:/ssl_certs
