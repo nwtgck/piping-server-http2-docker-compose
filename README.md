@@ -1,6 +1,6 @@
 # piping-server-http2-docker-compose
 
-[Docker Compose](https://docs.docker.com/compose/) for [Piping Server](https://github.com/nwtgck/piping-server) over HTTP/2 powered by [nghttp](https://github.com/nghttp2/nghttp2)
+[Docker Compose](https://docs.docker.com/compose/) for [Piping Server](https://github.com/nwtgck/piping-server) over HTTP/2 powered by [nghttp2](https://github.com/nghttp2/nghttp2)
 
 ## Run
 
