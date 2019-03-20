@@ -1,0 +1,116 @@
+version: 2
+jobs:
+  build:
+    machine: true
+    # (TODO: Resolve duplicate code)
+    steps:
+      - checkout
+      - run:
+          name: Server Setup
+          command: |
+            set -x
+            # Build images (to shorten time in docker-compose up)
+            docker-compose build
+            # Create SSL certificates
+            ./create_ssl_certs.sh
+            # Run server
+            docker-compose up -d
+            # Wait for server running
+            sleep 3
+      - run:
+          name: Working test in HTTP/1.1 (non-TLS)
+          command: |
+            set -x
+            # Get help
+            curl --http1.1 localhost:8080/help
+
+            # Create a file to send
+            echo 'hello, world' > /tmp/hello.txt
+            # Send and wait for a reciever
+            curl --http1.1 -T /tmp/hello.txt localhost:8080/mypath &
+            # Get data as a file
+            curl --http1.1 localhost:8080/mypath > /tmp/download.txt
+            # Print downloaded file
+            cat  /tmp/download.txt
+            # Test the equality
+            diff /tmp/hello.txt /tmp/download.txt
+            rm /tmp/download.txt
+        
+      - run:
+          name: Working test in HTTP/1.1 (HTTPS)
+          command: |
+            set -x
+            # Get help
+            curl -k --http1.1 https://localhost:8443/help
+
+            # Create a file to send
+            echo 'hello, world' > /tmp/hello.txt
+            # Send and wait for a reciever
+            curl -k --http1.1 -T /tmp/hello.txt https://localhost:8443/mypath &
+            # Get data as a file
+            curl -k --http1.1 https://localhost:8443/mypath > /tmp/download.txt
+            # Print downloaded file
+            cat  /tmp/download.txt
+            # Test the equality
+            diff /tmp/hello.txt /tmp/download.txt
+            rm /tmp/download.txt
+
+      - run:
+          name: Working test in HTTP/2 (non-TLS)
+          command: |
+            set -x
+            # Get server host
+            server_host=$(hostname -i)
+            # HTTP/2 test in Docker container
+            docker run --rm -i -e server_host=$server_host ubuntu:18.04 /bin/bash << EOF
+            set -xeu
+            apt update
+            apt install -y curl
+
+            # Get help
+            curl --http2 ${server_host}:8080/help
+
+            # Create a file to send
+            echo 'hello, world' > /tmp/hello.txt
+            # Send and wait for a reciever
+            curl --http2 -T /tmp/hello.txt ${server_host}:8080/mypath &
+            # Get data as a file
+            curl --http2 ${server_host}:8080/mypath > /tmp/download.txt
+            # Print downloaded file
+            cat  /tmp/download.txt
+            # Test the equality
+            diff /tmp/hello.txt /tmp/download.txt
+            rm /tmp/download.txt
+            EOF
+      
+      - run:
+          name: Working test in HTTP/2 (HTTPS)
+          command: |
+            set -x
+            # Get server host
+            server_host=$(hostname -i)
+            # HTTP/2 test in Docker container
+            docker run --rm -i -e server_host=$server_host ubuntu:18.04 /bin/bash << EOF
+            set -xeu
+            apt update
+            apt install -y curl
+
+            # Get help
+            curl -k --http2 https://${server_host}:8443/help
+
+            # Create a file to send
+            echo 'hello, world' > /tmp/hello.txt
+            # Send and wait for a reciever
+            curl -k --http2 -T /tmp/hello.txt https://${server_host}:8443/mypath &
+            # Get data as a file
+            curl -k --http2 https://${server_host}:8443/mypath > /tmp/download.txt
+            # Print downloaded file
+            cat  /tmp/download.txt
+            # Test the equality
+            diff /tmp/hello.txt /tmp/download.txt
+            rm /tmp/download.txt
+            EOF
+      
+      - run:
+          name: Print server's log
+          command: docker-compose logs

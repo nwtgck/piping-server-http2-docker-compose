@@ -1,4 +1,5 @@
 # piping-server-http2-docker-compose
+[![CircleCI](https://circleci.com/gh/nwtgck/piping-server-http2-docker-compose.svg?style=shield)](https://circleci.com/gh/nwtgck/piping-server-http2-docker-compose)
 
 [Docker Compose](https://docs.docker.com/compose/) for [Piping Server](https://github.com/nwtgck/piping-server) over HTTP/2 powered by [nghttp2](https://github.com/nghttp2/nghttp2)
 
