@@ -1,7 +1,7 @@
 # (base: https://github.com/dit4c/dockerfile-nghttpx)
 
 FROM alpine:edge
-LABEL maintainer="Ryo Ota <nwtgck@gmail.com>"
+LABEL maintainer="Ryo Ota <nwtgck@nwtgck.org>"
 
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
     adduser -S -D -h /dev/null -s /sbin/nologin nghttpx && \
